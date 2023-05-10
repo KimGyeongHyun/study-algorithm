@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 INF = int(1e9)
 
@@ -44,7 +45,7 @@ for _ in range(m):
 
 # 플로이드 워셜 알고리즘 수행
 for k in range(1, n + 1):   # 거처가는 노드
-    for a in range(1, n + 2):   # 출발 노드
+    for a in range(1, n + 1):   # 출발 노드
         for b in range(1, n + 1):   # 도착 노드
             # 그래프에 최단 거리 갱신
             graph[a][b] = min(graph[a][b], graph[a][k] + graph[k][b])
