@@ -1,4 +1,9 @@
-class SegmentTree:
+class SegmentTreeSum:
+    """
+    세그먼트 트리를 부분 총합에 사용 \n
+    구간합 리스트와 비교해 updater 시
+    시간 복잡도를 N -> logN 으로 줄일 수 있다
+    """
 
     def __init__(self, input_l) -> None:
         self.l = input_l
@@ -73,10 +78,86 @@ class SegmentTree:
         self.update(idx, dif, mid+1, end, tree_idx*2+1)
 
 
+class SegmentTreeMin:
+    """구간 최소 값을 찾을 때 리스트와 비교해 시간복잡도 N -> logN 의 이점이 있음"""
+
+    INF = 10**9
+
+    def __init__(self, input_l) -> None:
+        self.l = input_l
+        self.tree = [self.INF for _ in range(len(self.l)*4)]
+        self._set_tree(0, len(self.l)-1, 1)
+
+    def _set_tree(self, start, end, tree_idx):
+        
+        # 자식 노드로 내려가다가 인덱스가 같아진다면 
+        if start == end:
+            self.tree[tree_idx] = self.l[start]     # 트리에 l[start] 갱신
+            return self.tree[tree_idx]              # 해당 값 리턴
+        
+        # start, end 를 반씩 나눠 재귀 수행
+        # 이진 트리는 루트 노드가 1이라면 *2를 통해 자식 노드에 쉽게 다가갈 수 있는 특징을 사용
+        mid = (start + end) // 2
+        left = self._set_tree(start, mid, tree_idx*2)       # 자식 노드 우선 갱신
+        right = self._set_tree(mid+1, end, tree_idx*2+1)    # 자식 노드 우선 갱신
+        self.tree[tree_idx] = min(left, right)              # 최솟값을 본인 노드에 갱신
+        return self.tree[tree_idx]                          # 본인 리턴
+
+    def get_min(self, left, right, start, end, tree_idx):
+
+        
+
+        if left <= start and end <= right:
+            print("first", left, right, start, end, end='')
+            print(self.tree[tree_idx])
+            return self.tree[tree_idx]
+        
+        if start > end:
+            print("sec", left, right, start, end, end='')
+            print(self.INF)
+            return self.INF
+        
+        if start == end:
+            print("third", left, right, start, end, end='')
+            print(self.tree[start])
+            return self.tree[start]
+        
+        mid = (start + end) // 2
+        left = self.get_min(left, right, start, mid, tree_idx*2)
+        right = self.get_min(left, right, mid+1, end, tree_idx*2+1)
+        print("final", start, end, left, right)
+        return min(left, right)
+
+    
+    def update(self, idx, val, start, end, tree_idx):
+
+        # print(start, end)
+
+        # 해당 인덱스가 범위 안에 없으면 탈출
+        if idx < start or end < idx:
+            return
+        
+        # 트리 노드 갱신 (총합 갱신)
+        self.tree[tree_idx] = min(self.tree[tree_idx], val)
+
+        if start == end:
+            return
+        
+        # 재귀적으로 갱신
+        mid = (start + end) // 2
+        self.update(idx, val, start, mid, tree_idx*2)
+        self.update(idx, val, mid+1, end, tree_idx*2+1)
+
 if __name__ == "__main__":
     l = [1, 9, 3, 8, 4, 5, 5, 9, 10, 3, 4, 5]
-    seg = SegmentTree(l)
+    seg = SegmentTreeSum(l)
     print(seg.get_sum(4, 8, 0, len(l)-1, 1))
     seg.update(5, -5, 0, len(l)-1, 1)
     print(seg.get_sum(4, 8, 0, len(l)-1, 1))
-    
+
+    seg2 = SegmentTreeMin(l)
+    # print(*seg2.tree)
+    print(seg2.get_min(2, 5, 0, len(l)-1, 1))
+    seg2.update(3, 0, 0, len(l)-1, 1)
+    # print(*seg2.tree)
+    print(seg2.get_min(2, 5, 0, len(l)-1, 1))
